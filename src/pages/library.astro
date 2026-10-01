@@ -1,0 +1,20 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Library from '../components/react/Library.tsx';
+---
+<Layout title="My library — Bookshelf" description="Organize your books into shelves on Bookshelf.">
+	<Fragment slot="head">
+		<script is:inline>
+			// The library requires a session (JWT stored in localStorage by
+			// AppContext). Redirect to sign in before the page renders otherwise.
+			try {
+				if (!localStorage.getItem('bookshelf.auth')) {
+					window.location.replace('/login?next=/library');
+				}
+			} catch (e) {
+				/* ignore */
+			}
+		</script>
+	</Fragment>
+	<Library client:load />
+</Layout>

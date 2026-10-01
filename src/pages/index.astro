@@ -1,0 +1,93 @@
+---
+import Layout from '../layouts/Layout.astro';
+import HomeCTA from '../components/react/HomeCTA.tsx';
+---
+<Layout>
+	<!-- Hero -->
+	<section class="relative overflow-hidden">
+		<div class="pointer-events-none absolute inset-0" aria-hidden="true">
+			<div class="absolute -top-40 left-1/2 h-[26rem] w-[40rem] -translate-x-1/2 rounded-full bg-primary/15 blur-3xl" />
+			<div class="absolute -bottom-32 -right-24 h-72 w-72 rounded-full bg-secondary/10 blur-3xl" />
+		</div>
+
+		<div class="relative mx-auto max-w-3xl px-4 pb-16 pt-20 text-center sm:px-6 sm:pb-24 sm:pt-28">
+			<p class="mx-auto inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary">
+				Your personal library
+			</p>
+
+			<h1 class="mx-auto mt-6 max-w-2xl font-display text-4xl font-bold tracking-tight text-base-content sm:text-6xl">
+				A cozy home for
+				<span class="block text-primary italic">every book you love.</span>
+			</h1>
+
+			<p class="mx-auto mt-6 max-w-xl text-lg leading-relaxed opacity-70">
+				Organize your collection into shelves, reorder them just the way you like, track what you're
+				reading, and add books in seconds — with details auto-filled from Google Books.
+			</p>
+
+			<div class="mt-9">
+				<HomeCTA client:load />
+			</div>
+		</div>
+	</section>
+
+	<!-- Features -->
+	<section class="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
+		<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+			<div class="rounded-3xl border border-base-300 bg-base-100 p-8">
+				<span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+						<path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+					</svg>
+				</span>
+				<h3 class="mt-5 font-display text-lg font-semibold text-base-content">Shelves that make sense</h3>
+				<p class="mt-2 text-sm leading-relaxed opacity-70">
+					Create as many shelves as you like — favourites, to-read, 2026, anything. Reorder them
+					vertically to match how you think.
+				</p>
+			</div>
+
+			<div class="rounded-3xl border border-base-300 bg-base-100 p-8">
+				<span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary/15 text-secondary">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+						<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+					</svg>
+				</span>
+				<h3 class="mt-5 font-display text-lg font-semibold text-base-content">Track your reading</h3>
+				<p class="mt-2 text-sm leading-relaxed opacity-70">
+					Note when you started and finished each book, and see your shelves fill up with finished reads.
+				</p>
+			</div>
+
+			<div class="rounded-3xl border border-base-300 bg-base-100 p-8 sm:col-span-2 lg:col-span-1">
+				<span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent/15 text-accent">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+						<circle cx="11" cy="11" r="8" />
+						<path d="m21 21-4.3-4.3" />
+					</svg>
+				</span>
+				<h3 class="mt-5 font-display text-lg font-semibold text-base-content">Auto-fill by ISBN</h3>
+				<p class="mt-2 text-sm leading-relaxed opacity-70">
+					Type an ISBN and pull the cover, title, author and summary straight from Google Books — or add
+					books by hand.
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<!-- Quote / CTA -->
+	<section class="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
+		<div class="relative overflow-hidden rounded-3xl border border-base-300 bg-base-100 px-8 py-16 text-center sm:px-16">
+			<div class="pointer-events-none absolute inset-0" aria-hidden="true">
+				<div class="absolute left-1/2 top-0 h-40 w-[34rem] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
+			</div>
+			<blockquote class="relative mx-auto max-w-2xl font-display text-2xl font-medium italic leading-snug text-base-content">
+				“A room without books is like a body without a soul.”
+			</blockquote>
+			<p class="relative mt-3 text-sm opacity-60">— Marcus Tullius Cicero</p>
+			<div class="relative mt-8">
+				<HomeCTA client:load />
+			</div>
+		</div>
+	</section>
+</Layout>
