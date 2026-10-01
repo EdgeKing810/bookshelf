@@ -11,8 +11,8 @@
  * src/layouts/Layout.astro). Theme values are kept in OKLCH so they interpolate
  * cleanly; tweak any `--color-*` below to restyle the whole site.
  *
- *   bookshelf-light (default) — warm paper & ink, "library" teal accents
- *   bookshelf-dark           — deep dusk tones, warm reading-lamp amber
+ *   bookshelf-light — warm paper & ink, "library" teal accents
+ *   bookshelf-dark  (default) — deep dusk tones, warm reading-lamp amber
  *   bookshelf-sepia          — classic e-reader sepia
  * ─────────────────────────────────────────────────────────────────────────────
  */
@@ -20,7 +20,6 @@
 /* ── bookshelf-light ─────────────────────────────────────────────────────── */
 @plugin "daisyui/theme" {
 	name: "bookshelf-light";
-	default: true;
 	color-scheme: light;
 	--color-base-100: oklch(0.966 0.008 85);
 	--color-base-200: oklch(0.938 0.011 85);
@@ -55,6 +54,7 @@
 /* ── bookshelf-dark ──────────────────────────────────────────────────────── */
 @plugin "daisyui/theme" {
 	name: "bookshelf-dark";
+	default: true;
 	color-scheme: dark;
 	--color-base-100: oklch(0.175 0.014 260);
 	--color-base-200: oklch(0.215 0.016 260);

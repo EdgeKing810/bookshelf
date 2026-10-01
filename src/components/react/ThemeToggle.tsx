@@ -16,7 +16,7 @@ function applyTheme(theme: string) {
 }
 
 export default function ThemeToggle() {
-	const [theme, setTheme] = useState('bookshelf-light');
+	const [theme, setTheme] = useState('bookshelf-dark');
 	const [open, setOpen] = useState(false);
 	const [ready, setReady] = useState(false);
 

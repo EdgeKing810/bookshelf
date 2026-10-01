@@ -24,7 +24,7 @@ const {
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
 		<meta property="og:type" content="website" />
-		<meta name="theme-color" content="#1e3a2f" />
+		<meta name="theme-color" content="#1c1e24" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -38,10 +38,10 @@ const {
 				try {
 					var themes = ['bookshelf-light', 'bookshelf-dark', 'bookshelf-sepia'];
 					var saved = localStorage.getItem('bookshelf.theme');
-					var theme = themes.indexOf(saved) !== -1 ? saved : 'bookshelf-light';
+					var theme = themes.indexOf(saved) !== -1 ? saved : 'bookshelf-dark';
 					document.documentElement.setAttribute('data-theme', theme);
 				} catch (e) {
-					document.documentElement.setAttribute('data-theme', 'bookshelf-light');
+					document.documentElement.setAttribute('data-theme', 'bookshelf-dark');
 				}
 			})();
 		</script>
