@@ -11,6 +11,7 @@ import {
 import { toApiDate } from '../../lib/dates';
 import { normalizeIsbn } from '../../lib/books';
 import BarcodeScanner from './BarcodeScanner';
+import ErrorBoundary from './ErrorBoundary';
 import StarRating, { ratingToStars } from './StarRating';
 
 const inputClass = 'input input-bordered mt-1 w-full';
@@ -602,7 +603,18 @@ export default function AddBookModal({
       </div>
     </div>
     {scanning && (
-      <BarcodeScanner onDetected={handleScanned} onClose={() => setScanning(false)} />
+      <ErrorBoundary
+        fallback={
+          <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-4 bg-black p-6 text-center">
+            <p className="text-sm text-white/90">The barcode scanner couldn't be opened on this device.</p>
+            <button type="button" onClick={() => setScanning(false)} className="btn btn-primary">
+              Close
+            </button>
+          </div>
+        }
+      >
+        <BarcodeScanner onDetected={handleScanned} onClose={() => setScanning(false)} />
+      </ErrorBoundary>
     )}
     </>
   );
