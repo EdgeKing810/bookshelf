@@ -1,5 +1,5 @@
 {
-  "name": "kinesis-bookshelf",
+  "name": "bookshelf",
   "type": "module",
   "version": "0.0.1",
   "engines": {

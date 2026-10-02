@@ -1,12 +1,12 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # Gitea Actions pipeline — Build docker image and deploy
 #
-# Adapted from the `kinesis-api` project for the `kinesis-bookshelf` portfolio:
+# Adapted from the `kinesis-api` project for the `bookshelf` portfolio:
 #   1. Checks out the repository on the docker runner,
 #   2. Builds the production image (Dockerfile) and pushes it to the Gitea
 #      container registry,
 #   3. SSHes into the server, injects the compose secret, copies the compose
-#      file, pulls the fresh image and recreates the `kinesis-bookshelf`
+#      file, pulls the fresh image and recreates the `bookshelf`
 #      service (nginx behind Traefik).
 #
 # Required repository VARIABLES (Gitea > Settings > Variables):
@@ -36,7 +36,7 @@ on:
   workflow_dispatch:
 
 env:
-  DOCKER_JOB_ID: kinesis-bookshelf
+  DOCKER_JOB_ID: bookshelf
 
 jobs:
   docker-build:

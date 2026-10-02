@@ -1,14 +1,14 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# kinesis-bookshelf — production static site behind Traefik (nginx).
+# bookshelf — production static site behind Traefik (nginx).
 #
 # Deployed by the .gitea workflow: the image is built in CI, pushed to the
 # Gitea registry and pulled here. The compose image must match
 # `${{ vars.REPO_ORIGIN }}/${{ gitea.repository }}:latest`.
 # ─────────────────────────────────────────────────────────────────────────────
 services:
-  kinesis-bookshelf:
-    container_name: "kinesis-bookshelf"
-    image: "${BOOKSHELF_IMAGE:-gitea.konnect.dev/astro/kinesis-bookshelf:latest}"
+  bookshelf:
+    container_name: "bookshelf"
+    image: "${BOOKSHELF_IMAGE:-gitea.konnect.dev/astro/bookshelf:latest}"
     build:
       context: .
       dockerfile: Dockerfile
@@ -27,10 +27,10 @@ services:
       SERVER_NAMES: "${SERVER_NAMES:-books.kinesis.world}"
     labels:
       traefik.enable: "true"
-      traefik.http.routers.kinesis-bookshelf-service-http.entrypoints: "http"
-      traefik.http.routers.kinesis-bookshelf-service-http.rule: "Host(`books.kinesis.world`)"
-      traefik.http.routers.kinesis-bookshelf-service-http.middlewares: "https_redirect@file"
-      traefik.http.routers.kinesis-bookshelf-service-https.entrypoints: "https"
-      traefik.http.routers.kinesis-bookshelf-service-https.rule: "Host(`books.kinesis.world`)"
-      traefik.http.routers.kinesis-bookshelf-service-https.tls.certResolver: "acme-http"
-      traefik.http.services.kinesis-bookshelf-service-https.loadbalancer.server.port: "80"
+      traefik.http.routers.bookshelf-service-http.entrypoints: "http"
+      traefik.http.routers.bookshelf-service-http.rule: "Host(`books.kinesis.world`)"
+      traefik.http.routers.bookshelf-service-http.middlewares: "https_redirect@file"
+      traefik.http.routers.bookshelf-service-https.entrypoints: "https"
+      traefik.http.routers.bookshelf-service-https.rule: "Host(`books.kinesis.world`)"
+      traefik.http.routers.bookshelf-service-https.tls.certResolver: "acme-http"
+      traefik.http.services.bookshelf-service-https.loadbalancer.server.port: "80"
