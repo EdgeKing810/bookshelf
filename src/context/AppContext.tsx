@@ -75,15 +75,15 @@ export interface UserUpdateResponse extends ApiEnvelope {
 }
 
 /**
- * A shelf: an ordered group of books owned by a user. `order` is the vertical
- * position of the shelf within the user's library (0 = top).
+ * A shelf: an ordered group of books owned by a user. `position` is the
+ * vertical position of the shelf within the user's library (0 = top).
  */
 export interface Shelf {
 	id: string;
-	user_id: string;
+	owner_id: string;
 	name: string;
 	description: string;
-	order: number;
+	position: number;
 	created_at?: string;
 	updated_at?: string;
 }
@@ -95,7 +95,7 @@ export interface ShelfMutationResponse extends ApiEnvelope {
 	id: string;
 }
 
-/** Response of GET /shelf/fetch. */
+/** Response of GET /shelf/fetch (shelf_id optional; limit/offset optional). */
 export interface ShelfFetchResponse extends ApiEnvelope {
 	status: number;
 	message: string;
@@ -103,23 +103,33 @@ export interface ShelfFetchResponse extends ApiEnvelope {
 	amount: number;
 }
 
+/** Reading status of a book. */
+export type BookStatus = 'READING' | 'FINISHED' | 'WANT_TO_READ';
+
 /**
- * A book on a shelf. `order` is the horizontal position within its shelf
- * (0 = leftmost). Dates are stored as `YYYY-MM-DD`; empty means not started /
- * not finished.
+ * A book. `shelf_id` is optional (empty = not shelved). `position` is a global
+ * 0-based integer across all of the user's books — the API shifts other books
+ * when a conflicting position is written. Dates are `YYYY-MM-DD`.
  */
 export interface Book {
 	id: string;
-	user_id: string;
 	shelf_id: string;
+	owner_id: string;
 	title: string;
 	author: string;
 	summary: string;
 	cover_image: string;
+	num_pages: number;
+	genres: string[];
+	/** Notable quotes from the book (longer strings, one per entry). */
+	quotes: string[];
+	rating: number;
 	isbn: string;
-	started_date: string;
-	finished_date: string;
-	order: number;
+	google_books_id: string;
+	date_started: string;
+	date_ended: string;
+	position: number;
+	status: BookStatus;
 	created_at?: string;
 	updated_at?: string;
 }
@@ -131,23 +141,12 @@ export interface BookMutationResponse extends ApiEnvelope {
 	id: string;
 }
 
-/** Response of GET /book/fetch. */
+/** Response of GET /book/fetch (shelf_id/book_id optional; limit/offset optional). */
 export interface BookFetchResponse extends ApiEnvelope {
 	status: number;
 	message: string;
 	books: Book[];
 	amount: number;
-}
-
-/** Response of GET /book/search?isbn=… (Google Books auto-fill). */
-export interface BookSearchResponse extends ApiEnvelope {
-	status: number;
-	message: string;
-	isbn?: string;
-	title?: string;
-	author?: string;
-	summary?: string;
-	cover_image?: string;
 }
 
 /** Response of POST /upload (media service, not under the /x/bookshelf/ base). */
@@ -244,8 +243,6 @@ export interface AppContextValue {
 	upload: (file: File) => Promise<UploadResponse>;
 	/** Build a public URL for an uploaded media `path`. */
 	mediaUrl: (path: string) => string;
-	/** Auto-fill book details from Google Books via ISBN (GET /book/search). */
-	searchBook: (isbn: string) => Promise<BookSearchResponse>;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -353,11 +350,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
 	const logout = useCallback(() => setAuth(null), []);
 
-	const searchBook = useCallback(
-		async (isbn: string) => request<BookSearchResponse>(`book/search?isbn=${encodeURIComponent(isbn.trim())}`),
-		[request],
-	);
-
 	const value = useMemo<AppContextValue>(
 		() => ({
 			apiUrl,
@@ -369,9 +361,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 			logout,
 			upload,
 			mediaUrl,
-			searchBook,
 		}),
-		[apiUrl, api, request, auth, login, reauthenticate, logout, upload, mediaUrl, searchBook],
+		[apiUrl, api, request, auth, login, reauthenticate, logout, upload, mediaUrl],
 	);
 
 	return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

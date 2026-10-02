@@ -30,10 +30,43 @@ export function previewText(text: string, max = 180): string {
 }
 
 /**
- * Nice label for a reading status derived from the read dates.
+ * Deterministic hash from a string, used to pick a stable spine color/size.
  */
-export function readingStatus(started: string, finished: string): 'unread' | 'reading' | 'finished' {
-	if (finished && finished.trim()) return 'finished';
-	if (started && started.trim()) return 'reading';
-	return 'unread';
+export function hashString(value: string): number {
+	let hash = 0;
+	const input = value || 'unknown';
+	for (let i = 0; i < input.length; i++) {
+		hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
+	}
+	return hash;
+}
+
+/** Cloth-binding tones for book spines — derived from the accent hue so the
+ * whole shelf stays cohesive, with per-book lightness/chroma/offset variety. */
+const SPINE_OFFSETS = [-75, -40, -10, 15, 45, 75, 110, 150] as const;
+const SPINE_LIGHTS = [0.5, 0.56, 0.62, 0.46, 0.54, 0.6] as const;
+const SPINE_CHROMAS = [0.11, 0.09, 0.12, 0.08, 0.1, 0.13] as const;
+
+/**
+ * Cloth-binding color for a book's spine (stable across renders, follows the
+ * user's chosen accent hue). Returns a fully-resolved `oklch(...)` string so
+ * it works in every browser that supports the theme itself.
+ */
+export function spineColor(bookId: string, title: string, accentHue: number): string {
+	const h = hashString(`${bookId}:${title}`);
+	const offset = SPINE_OFFSETS[h % SPINE_OFFSETS.length];
+	const light = SPINE_LIGHTS[(h >> 3) % SPINE_LIGHTS.length];
+	const chroma = SPINE_CHROMAS[(h >> 5) % SPINE_CHROMAS.length];
+	const hue = (((accentHue + offset) % 360) + 360) % 360;
+	return `oklch(${light} ${chroma} ${hue})`;
+}
+
+/** Spine width in px — books vary slightly, like a real shelf. */
+export function spineWidth(bookId: string, title: string): number {
+	return 32 + (hashString(`${bookId}#${title}`) % 4) * 4; // 32–44px
+}
+
+/** Spine height in px — a bit of variety, all books still stand on the plank. */
+export function spineHeight(bookId: string, title: string): number {
+	return 132 + (hashString(`${bookId}${title}@`) % 5) * 10; // 132–172px
 }

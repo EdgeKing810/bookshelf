@@ -26,6 +26,11 @@ const {
 		<meta property="og:type" content="website" />
 		<meta name="theme-color" content="#1c1e24" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="manifest" href="/manifest.webmanifest" />
+		<link rel="apple-touch-icon" href="/icons/icon-192.png" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta name="apple-mobile-web-app-title" content="Bookshelf" />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
@@ -33,20 +38,36 @@ const {
 			rel="stylesheet"
 		/>
 		<script is:inline>
-			// Apply the saved theme before first paint to avoid a flash.
+			// Apply the saved theme + accent hue before first paint to avoid a flash.
 			(function () {
+				var root = document.documentElement;
 				try {
 					var themes = ['bookshelf-light', 'bookshelf-dark', 'bookshelf-sepia'];
 					var saved = localStorage.getItem('bookshelf.theme');
 					var theme = themes.indexOf(saved) !== -1 ? saved : 'bookshelf-dark';
-					document.documentElement.setAttribute('data-theme', theme);
+					root.setAttribute('data-theme', theme);
+					var hue = localStorage.getItem('bookshelf.accent');
+					if (hue !== null && /^-?\d+$/.test(hue)) {
+						root.style.setProperty('--accent-hue', hue);
+					}
 				} catch (e) {
-					document.documentElement.setAttribute('data-theme', 'bookshelf-dark');
+					root.setAttribute('data-theme', 'bookshelf-dark');
 				}
 			})();
 		</script>
 		<slot name="head" />
 		<title>{title}</title>
+		{
+			import.meta.env.PROD && (
+				<script is:inline>
+					if ('serviceWorker' in navigator) {
+						window.addEventListener('load', () => {
+							navigator.serviceWorker.register('/sw.js').catch(() => {});
+						});
+					}
+				</script>
+			)
+		}
 	</head>
 	<body class="flex min-h-screen flex-col">
 		<Header />

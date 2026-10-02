@@ -1,33 +1,39 @@
 import { useState } from 'react';
 import { type Book, type Shelf } from '../../context/AppContext';
-import BookCard from './BookCard';
+import ShelfStrip from './ShelfStrip';
 
 export default function ShelfRow({
   shelf,
   books,
+  shelves,
   shelfIndex,
   shelfCount,
   busy,
+  controls,
   onMoveShelf,
   onUpdateShelf,
   onDeleteShelf,
   onAddBook,
-  onMoveBook,
   onEditBook,
   onDeleteBook,
+  onMoveBookToShelf,
+  onDropBook,
 }: {
   shelf: Shelf;
   books: Book[];
+  shelves: Shelf[];
   shelfIndex: number;
   shelfCount: number;
   busy: boolean;
+  controls: boolean;
   onMoveShelf: (direction: -1 | 1) => void;
   onUpdateShelf: (name: string, description: string) => Promise<void>;
   onDeleteShelf: () => Promise<void>;
   onAddBook: () => void;
-  onMoveBook: (bookId: string, direction: -1 | 1) => void;
   onEditBook: (book: Book) => void;
   onDeleteBook: (book: Book) => void;
+  onMoveBookToShelf: (book: Book, shelfId: string) => void;
+  onDropBook: (draggedId: string, targetId: string) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -49,8 +55,8 @@ export default function ShelfRow({
   return (
     <section className="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
       {/* Shelf header */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
+      <div className="space-y-3">
+        <div className="min-w-0">
           {editing ? (
             <div className="grid gap-3 sm:grid-cols-[1fr_1.5fr_auto] sm:items-end">
               <label className="block">
@@ -94,7 +100,7 @@ export default function ShelfRow({
         </div>
 
         {/* Shelf actions */}
-        {!editing && (
+        {!editing && controls && (
           <div className="flex flex-wrap items-center gap-1.5">
             <div className="flex items-center gap-1 rounded-lg border border-base-300 p-0.5">
               <button
@@ -158,46 +164,19 @@ export default function ShelfRow({
         )}
       </div>
 
-      {/* Book strip */}
-      <div className="mt-4">
-        {books.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 bg-base-200/40 px-4 py-8 text-center">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-base-content/40">
-              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
-            </svg>
-            <p className="text-sm text-base-content/60">This shelf is empty — add your first book.</p>
-            <button type="button" onClick={onAddBook} className="btn btn-primary btn-sm">
-              Add a book
-            </button>
-          </div>
-        ) : (
-          <div className="flex snap-x gap-4 overflow-x-auto pb-2" style={{ scrollbarGutter: 'stable' }}>
-            {books.map((book, index) => (
-              <BookCard
-                key={book.id}
-                book={book}
-                index={index}
-                count={books.length}
-                busy={busy}
-                onMove={(dir) => onMoveBook(book.id, dir)}
-                onEdit={() => onEditBook(book)}
-                onDelete={() => onDeleteBook(book)}
-              />
-            ))}
-            <button
-              type="button"
-              onClick={onAddBook}
-              className="flex w-36 shrink-0 snap-start flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-base-300 text-base-content/50 transition hover:border-primary/60 hover:text-primary sm:w-40"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8">
-                <path d="M5 12h14" />
-                <path d="M12 5v14" />
-              </svg>
-              <span className="text-sm font-medium">Add a book</span>
-            </button>
-          </div>
-        )}
-      </div>
+      {/* Bookshelf body */}
+      <ShelfStrip
+        books={books}
+        shelves={shelves}
+        emptyLabel="This shelf is empty — add your first book."
+        busy={busy}
+        controls={controls}
+        onAddBook={onAddBook}
+        onEditBook={onEditBook}
+        onDeleteBook={onDeleteBook}
+        onMoveBookToShelf={onMoveBookToShelf}
+        onDropBook={onDropBook}
+      />
     </section>
   );
 }

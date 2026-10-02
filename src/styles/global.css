@@ -21,12 +21,13 @@
 @plugin "daisyui/theme" {
 	name: "bookshelf-light";
 	color-scheme: light;
+	--accent-hue: 195;
 	--color-base-100: oklch(0.966 0.008 85);
 	--color-base-200: oklch(0.938 0.011 85);
 	--color-base-300: oklch(0.897 0.014 85);
 	--color-base-content: oklch(0.29 0.02 40);
-	--color-primary: oklch(0.42 0.09 195);
-	--color-primary-content: oklch(0.98 0.02 195);
+	--color-primary: oklch(0.42 0.09 var(--accent-hue));
+	--color-primary-content: oklch(0.98 0.02 var(--accent-hue));
 	--color-secondary: oklch(0.68 0.13 75);
 	--color-secondary-content: oklch(0.2 0.04 75);
 	--color-accent: oklch(0.58 0.13 25);
@@ -56,12 +57,13 @@
 	name: "bookshelf-dark";
 	default: true;
 	color-scheme: dark;
+	--accent-hue: 80;
 	--color-base-100: oklch(0.175 0.014 260);
 	--color-base-200: oklch(0.215 0.016 260);
 	--color-base-300: oklch(0.275 0.018 260);
 	--color-base-content: oklch(0.93 0.01 260);
-	--color-primary: oklch(0.78 0.13 80);
-	--color-primary-content: oklch(0.2 0.04 80);
+	--color-primary: oklch(0.78 0.13 var(--accent-hue));
+	--color-primary-content: oklch(0.2 0.04 var(--accent-hue));
 	--color-secondary: oklch(0.7 0.1 195);
 	--color-secondary-content: oklch(0.18 0.03 195);
 	--color-accent: oklch(0.72 0.13 15);
@@ -90,12 +92,13 @@
 @plugin "daisyui/theme" {
 	name: "bookshelf-sepia";
 	color-scheme: light;
+	--accent-hue: 55;
 	--color-base-100: oklch(0.9 0.032 82);
 	--color-base-200: oklch(0.858 0.036 82);
 	--color-base-300: oklch(0.796 0.042 82);
 	--color-base-content: oklch(0.335 0.034 55);
-	--color-primary: oklch(0.46 0.07 55);
-	--color-primary-content: oklch(0.96 0.015 55);
+	--color-primary: oklch(0.46 0.07 var(--accent-hue));
+	--color-primary-content: oklch(0.96 0.015 var(--accent-hue));
 	--color-secondary: oklch(0.52 0.09 30);
 	--color-secondary-content: oklch(0.96 0.015 30);
 	--color-accent: oklch(0.5 0.12 25);
@@ -158,4 +161,204 @@ h4,
 /* Subtle scrollbars that respect the active theme */
 * {
 	scrollbar-color: color-mix(in oklab, var(--color-base-content) 35%, transparent) transparent;
+}
+
+/* ── Bookshelf visuals ────────────────────────────────────────────────────
+ * Wood grain plank that books "stand on", plus a 3D book spine. The wood and
+ * binding tones follow the chosen accent hue.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+.shelf-wood {
+	background:
+		repeating-linear-gradient(
+			90deg,
+			rgba(0, 0, 0, 0.16) 0 2px,
+			rgba(255, 255, 255, 0.06) 2px 4px,
+			rgba(0, 0, 0, 0) 4px 30px
+		),
+		linear-gradient(
+			180deg,
+			oklch(0.74 0.1 var(--accent-hue, 80)) 0%,
+			oklch(0.63 0.11 var(--accent-hue, 80)) 55%,
+			oklch(0.47 0.1 var(--accent-hue, 80)) 100%
+		);
+	box-shadow:
+		inset 0 1px 0 rgba(255, 235, 200, 0.35),
+		inset 0 -2px 4px rgba(0, 0, 0, 0.35),
+		0 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Wall behind the books — tinted toward the accent hue */
+.shelf-back {
+	background:
+		repeating-linear-gradient(
+			90deg,
+			rgba(128, 96, 64, 0.05) 0 36px,
+			rgba(128, 96, 64, 0.09) 36px 38px
+		),
+		linear-gradient(
+			180deg,
+			color-mix(in oklab, var(--color-base-200) 88%, oklch(0.62 0.12 var(--accent-hue, 80))),
+			var(--color-base-100)
+		);
+}
+
+/* Wooden frame of a shelf unit — the side rails are the frame's padding.
+   The wood tone follows the chosen accent hue. */
+.shelf-frame {
+	padding: 10px 12px;
+	border-radius: 14px;
+	background:
+		repeating-linear-gradient(
+			90deg,
+			rgba(0, 0, 0, 0.18) 0 2px,
+			rgba(255, 255, 255, 0.07) 2px 4px,
+			rgba(0, 0, 0, 0) 4px 30px
+		),
+		linear-gradient(
+			180deg,
+			oklch(0.72 0.1 var(--accent-hue, 80)) 0%,
+			oklch(0.59 0.11 var(--accent-hue, 80)) 60%,
+			oklch(0.45 0.1 var(--accent-hue, 80)) 100%
+		);
+	box-shadow:
+		inset 0 1px 0 rgba(255, 235, 200, 0.35),
+		inset 0 -3px 6px rgba(0, 0, 0, 0.3),
+		0 4px 12px rgba(0, 0, 0, 0.16);
+}
+
+/* The library "room": wall at the top fading into an accent-toned floor strip */
+.library-room {
+	background:
+		repeating-linear-gradient(
+			90deg,
+			rgba(128, 96, 64, 0.05) 0 38px,
+			rgba(128, 96, 64, 0.09) 38px 40px
+		),
+		linear-gradient(
+			180deg,
+			var(--color-base-200) 0%,
+			var(--color-base-100) 70%,
+			oklch(0.59 0.11 var(--accent-hue, 80)) 96%,
+			oklch(0.42 0.1 var(--accent-hue, 80)) 100%
+		);
+}
+
+/* A book spine standing on a shelf. Set `--spine` (fully-resolved base color),
+ * width and height inline on the element. Shading uses plain rgba overlays so
+ * the color can't fail or render transparent in any browser. */
+.book-spine {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	border-radius: 3px 4px 4px 3px;
+	background-color: var(--spine);
+	background-image:
+		linear-gradient(
+			90deg,
+			rgba(0, 0, 0, 0.28) 0%,
+			rgba(255, 255, 255, 0) 14%,
+			rgba(255, 255, 255, 0.22) 42%,
+			rgba(255, 255, 255, 0.1) 50%,
+			rgba(0, 0, 0, 0.08) 58%,
+			rgba(0, 0, 0, 0.24) 90%,
+			rgba(0, 0, 0, 0.38) 100%
+		);
+	box-shadow:
+		inset 0 0 0 1px rgba(0, 0, 0, 0.4),
+		0 2px 3px rgba(0, 0, 0, 0.28);
+	transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+	cursor: pointer;
+}
+
+.book-spine:hover {
+	transform: translateY(-2px);
+	box-shadow:
+		inset 0 0 0 1px rgba(0, 0, 0, 0.4),
+		0 5px 8px rgba(0, 0, 0, 0.35);
+	filter: brightness(1.05);
+}
+
+/* Hardcover edge bands at top & bottom of the spine */
+.book-spine::before,
+.book-spine::after {
+	content: "";
+	position: absolute;
+	left: 1px;
+	right: 1px;
+	height: 4px;
+	border-radius: 1px;
+	background: rgba(0, 0, 0, 0.35);
+}
+
+.book-spine::before {
+	top: 2px;
+}
+
+.book-spine::after {
+	bottom: 2px;
+}
+
+.spine-title {
+	writing-mode: vertical-rl;
+	text-orientation: mixed;
+	max-height: calc(100% - 56px);
+	margin-top: 12px;
+	overflow: hidden;
+	font-size: 9px;
+	line-height: 1.15;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: #fdf6e9;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+}
+
+.spine-author {
+	position: absolute;
+	bottom: 7px;
+	left: 2px;
+	right: 2px;
+	overflow: hidden;
+	text-align: center;
+	font-size: 8px;
+	line-height: 1;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: rgba(253, 246, 233, 0.85);
+	white-space: nowrap;
+}
+
+/* Tiny star row on the spine showing the book's rating */
+.spine-stars {
+	position: absolute;
+	bottom: 15px;
+	left: 0;
+	right: 0;
+	display: flex;
+	justify-content: center;
+	gap: 1px;
+}
+
+/* Bookmark ribbon that marks reading status on the spine top */
+.spine-ribbon {
+	position: absolute;
+	top: 0;
+	right: 3px;
+	width: 7px;
+	height: 16px;
+	border-radius: 0 0 2px 2px;
+	background: var(--ribbon, #b8a060);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.spine-ribbon::after {
+	content: "";
+	position: absolute;
+	bottom: -4px;
+	left: 0;
+	border-left: 3.5px solid transparent;
+	border-right: 3.5px solid transparent;
+	border-top: 4px solid var(--ribbon, #b8a060);
 }

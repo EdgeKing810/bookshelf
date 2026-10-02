@@ -63,19 +63,27 @@ against the local API during development and the production API when deployed.
 
 **Books**
 
-- Each shelf holds books that can be **reordered horizontally** (left/right).
-- Books store title, author, summary, cover image, ISBN and read dates
-  (started / finished), with an `Unread` / `Reading` / `Finished` badge.
-- Add books **manually**, or **auto-fill the details by searching the Google
-  Books API via ISBN** — cover, title, author and summary in one search.
+- Each shelf holds books that can be **reordered horizontally** by dragging
+  and dropping, or with the arrow buttons — updated locally, no full reload.
+- Books store title, author, summary, cover image, ISBN, genres, page count and
+  read dates (started / finished), with a `WANT_TO_READ` / `READING` /
+  `FINISHED` badge.
+- **Star ratings** — each book is rated 1–10, shown as 5 stars (half star = 1
+  point) right on the spine and picked with the star control when adding a book.
+- Add books **manually**, or **auto-fill the details by ISBN** — enter the ISBN (or scan the book's barcode with
+  your phone) and `POST /book/create/isbn` pulls the cover, title, author, pages and genres from OpenLibrary.
 
 **Reader-friendly UI**
 
 - Three hand-tuned daisyUI themes — **Paper** (light), **Dusk** (dark) and
   **Sepia** (classic e-reader) — switched from the header and remembered across
-  visits.
+  visits, plus a **pick-your-accent** hue palette that recolors the shelves, wood
+  and spines.
 - Serif display & reading type (Fraunces + Lora), high-contrast ink on warm
   paper, and a layout that works beautifully on phones.
+- **Installable PWA** — a web app manifest, icons and service worker let users
+  "Add to Home Screen" and open Bookshelf as a standalone app, with an offline
+  shell on mobile.
 
 ---
 
@@ -93,7 +101,7 @@ against the local API during development and the production API when deployed.
   build time. All API calls go through `AppProvider`
   (`src/context/AppContext.tsx`), which exposes `api(path)`, `request(path,
   init)` (auto-attaches `Authorization: Bearer <jwt>`), `login`,
-  `reauthenticate`, `logout`, `upload`, `mediaUrl` and `searchBook`.
+  `reauthenticate`, `logout`, `upload` and `mediaUrl`.
 - **Response envelope** — every route returns `{ status, message, ... }`; the
   body `status` is authoritative even when the HTTP status is 200. `request`
   throws an `ApiError` carrying the API `message` on any non-2xx body status.
@@ -111,13 +119,26 @@ against the local API during development and the production API when deployed.
 | Auth   | `POST /user/register` · `POST /user/login` · `POST /user/login/jwt` (JWT)                                                              |
 | User   | `GET /user/me` (JWT) · `PATCH /user/update` (JWT)                                                                                      |
 | Shelves | `POST /shelf/create` · `PUT /shelf/update` · `DELETE /shelf/delete` · `GET /shelf/fetch` — all (JWT)                                   |
-| Books  | `POST /book/create` · `PUT /book/update` · `DELETE /book/delete` · `GET /book/fetch` · `GET /book/search?isbn=…` (Google Books) — all (JWT) |
+| Books  | `POST /book/create` · `PUT /book/update` · `DELETE /book/delete` · `GET /book/fetch` · `POST /book/create/isbn` (OpenLibrary lookup) — all (JWT) |
 | Media  | `POST /upload` (public, `project_id=bookshelf`)                                                                                        |
 
-> **Shelf & book routes** follow the same convention as the user routes
-> (create/update/delete/fetch + a Google Books search by ISBN) and are
-> centralized in `src/context/AppContext.tsx`, so the contract is trivial to
-> adjust. The full endpoint logic and sample data are available from the Kinesis
+> **Shelves** use a `position` (integer, 0 = top) that the API keeps consistent:
+> `POST /shelf/create` shifts existing shelves with `position >= new position`
+> by +1, and `PUT /shelf/update` shifts the shelves between the old and new
+> position when a shelf is moved. Deleting a shelf reorders the rest and unsets
+> `shelf_id` on its books.
+>
+> **Books** also carry a `position` — but it is **global across all of the
+> user's books** (not per shelf), so the API shifts books on other shelves too
+> when a conflicting position is written. Each book stores `status`
+> (`READING`/`FINISHED`/`WANT_TO_READ`), `genres`, `rating` (1.0–10.0, 0.5
+> steps), `num_pages`, read dates (`date_started`/`date_ended`) and an optional
+> `shelf_id` (empty = unshelved, shown in an "Unshelved" row).
+>
+> **Pagination** — `GET /shelf/fetch` and `GET /book/fetch` accept `limit`
+> (default 100) and `offset` (default 0); `offset` is a 0-based **page number**,
+> so the API skips `offset * limit` items. Both responses include `amount` for
+> the total. Full endpoint logic and sample data are available from the Kinesis
 > API library: **https://api.kinesis.world/library**.
 
 ### Auth flow
@@ -194,7 +215,7 @@ CORS).
 │   │       │   ApiBadge.tsx, Skeleton.tsx, PasswordInput.tsx
 │   │       ├── LoginForm.tsx, RegisterForm.tsx
 │   │       ├── AccountPanel.tsx, EditProfile.tsx
-│   │       ├── Library.tsx, ShelfRow.tsx, BookCard.tsx, AddBookModal.tsx
+│   │       ├── Library.tsx, ShelfRow.tsx, ShelfStrip.tsx, BookCard.tsx, AddBookModal.tsx
 │   ├── context/AppContext.tsx  # API client, envelope parsing, auth session
 │   ├── lib/                    # validation, dates, book helpers
 │   ├── layouts/Layout.astro    # Theme bootstrap, fonts, meta

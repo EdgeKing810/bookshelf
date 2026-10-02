@@ -1,130 +1,119 @@
-import { type Book } from '../../context/AppContext';
-import { normalizeIsbn, previewText, readingStatus } from '../../lib/books';
+import { useState, type CSSProperties } from 'react';
+import { type Book, type Shelf } from '../../context/AppContext';
+import {
+  authorInitials,
+  spineColor,
+  spineHeight,
+  spineWidth,
+} from '../../lib/books';
+import { useAccentHue } from '../../lib/theme';
+import StarRating from './StarRating';
 
-const statusStyles = {
-  unread: 'border-base-300 bg-base-200 text-base-content/70',
-  reading: 'border-primary/40 bg-primary/15 text-primary',
-  finished: 'border-success/40 bg-success/15 text-success',
-} as const;
+const ribbonColors: Record<Book['status'], string> = {
+  READING: '#e8a33d',
+  FINISHED: '#3da35d',
+  WANT_TO_READ: '#7d8aa0',
+};
 
-const statusLabels = {
-  unread: 'Unread',
-  reading: 'Reading',
-  finished: 'Finished',
-} as const;
-
-export default function BookCard({
+/**
+ * A single book rendered as a cloth-bound spine standing on the shelf plank.
+ * When `compact`, the spine sits at its natural width so books pack together;
+ * otherwise the slot is widened to line up with the action row below.
+ */
+export function BookSpine({
   book,
-  index,
-  count,
-  onMove,
   onEdit,
-  onDelete,
-  busy,
+  onDropBook,
+  compact = false,
 }: {
   book: Book;
-  index: number;
-  count: number;
-  onMove: (direction: -1 | 1) => void;
   onEdit: () => void;
-  onDelete: () => void;
-  busy: boolean;
+  onDropBook: (draggedId: string, targetId: string) => void;
+  compact?: boolean;
 }) {
-  const status = readingStatus(book.started_date, book.finished_date);
+  const accentHue = useAccentHue();
+  const color = spineColor(book.id, book.title, accentHue);
+  const width = spineWidth(book.id, book.title);
+  const height = spineHeight(book.id, book.title);
+  const ribbon = ribbonColors[book.status];
+  const [over, setOver] = useState(false);
+
+  const style = { '--spine': color, width, height } as CSSProperties;
 
   return (
-    <div className="group relative w-40 shrink-0 snap-start sm:w-44">
-      {/* Cover */}
+    <div className={compact ? 'flex shrink-0' : 'flex w-24 shrink-0 justify-center'}>
       <button
         type="button"
         onClick={onEdit}
+        draggable
+        onDragStart={(e) => {
+          e.dataTransfer.setData('text/plain', book.id);
+          e.dataTransfer.effectAllowed = 'move';
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          setOver(true);
+        }}
+        onDragLeave={() => setOver(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setOver(false);
+          const draggedId = e.dataTransfer.getData('text/plain');
+          if (draggedId && draggedId !== book.id) onDropBook(draggedId, book.id);
+        }}
+        title={`${book.title}${book.author ? ` — ${book.author}` : ''}`}
         aria-label={`Edit ${book.title}`}
-        className="block w-full overflow-hidden rounded-xl border border-base-300 bg-base-200 shadow-sm transition hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className={`book-spine focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+          over ? 'brightness-110 ring-2 ring-primary' : ''
+        }`}
+        style={style}
       >
-        {book.cover_image ? (
-          <img
-            src={book.cover_image}
-            alt={`${book.title} cover`}
-            loading="lazy"
-            className="aspect-[2/3] w-full object-cover"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
-          />
-        ) : (
-          <span className="flex aspect-[2/3] w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-base-200 to-base-300 p-3 text-center">
-            <span className="font-display text-lg font-semibold leading-tight text-base-content line-clamp-3">
-              {book.title}
-            </span>
-            <span className="text-xs text-base-content/60 line-clamp-1">{book.author || 'Unknown author'}</span>
+        {ribbon && <span className="spine-ribbon" style={{ '--ribbon': ribbon } as CSSProperties} />}
+        <span className="spine-title">{book.title}</span>
+        <span className="spine-author">{authorInitials(book.author) || '···'}</span>
+        {book.rating > 0 && (
+          <span className="spine-stars">
+            <StarRating value={book.rating} size={5} />
           </span>
         )}
       </button>
+    </div>
+  );
+}
 
-      {/* Meta */}
-      <div className="mt-2 px-0.5">
-        <p className="truncate text-sm font-medium text-base-content" title={book.title}>
-          {book.title}
-        </p>
-        <p className="truncate text-xs text-base-content/60">
-          {book.author || 'Unknown author'}
-          {book.isbn ? ` · ${normalizeIsbn(book.isbn)}` : ''}
-        </p>
-        {book.summary && (
-          <p className="mt-1 hidden text-xs leading-relaxed text-base-content/50 line-clamp-2 sm:block">
-            {previewText(book.summary, 90)}
-          </p>
-        )}
-        <div className="mt-1.5 flex items-center gap-2">
-          <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${statusStyles[status]}`}>
-            {status === 'finished' ? (
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-2.5 w-2.5">
-                <path d="M20 6 9 17l-5-5" />
-              </svg>
-            ) : status === 'reading' ? (
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-2.5 w-2.5">
-                <circle cx="12" cy="12" r="5" />
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="h-2.5 w-2.5">
-                <path d="M6 3v18" />
-                <path d="M18 3v18" />
-              </svg>
-            )}
-            {statusLabels[status]}
-          </span>
-        </div>
-      </div>
+const iconClass =
+  'flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-base-300 text-base-content/70 transition hover:border-primary/50 hover:text-primary disabled:cursor-not-allowed disabled:opacity-30';
 
-      {/* Actions */}
-      <div className="mt-2 flex items-center gap-1">
-        <button
-          type="button"
-          onClick={() => onMove(-1)}
-          disabled={busy || index === 0}
-          aria-label="Move book left"
-          className="flex h-7 w-7 items-center justify-center rounded-lg border border-base-300 text-base-content/70 transition hover:border-primary/50 hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
-            <path d="m15 18-6-6 6-6" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          onClick={() => onMove(1)}
-          disabled={busy || index === count - 1}
-          aria-label="Move book right"
-          className="flex h-7 w-7 items-center justify-center rounded-lg border border-base-300 text-base-content/70 transition hover:border-primary/50 hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
-            <path d="m9 18 6-6-6-6" />
-          </svg>
-        </button>
+/**
+ * Per-book controls rendered under the plank, aligned to the spine slot above.
+ */
+export function BookActions({
+  book,
+  busy,
+  shelves,
+  onEdit,
+  onDelete,
+  onMoveToShelf,
+}: {
+  book: Book;
+  busy: boolean;
+  shelves: Shelf[];
+  onEdit: () => void;
+  onDelete: () => void;
+  onMoveToShelf: (shelfId: string) => void;
+}) {
+  const [moving, setMoving] = useState(false);
+  const otherShelves = shelves.filter((s) => s.id !== book.shelf_id);
+
+  return (
+    <div className="flex w-24 shrink-0 flex-col items-center gap-1">
+      <div className="flex items-center justify-center gap-0.5">
         <button
           type="button"
           onClick={onEdit}
-          aria-label="Edit book details"
-          className="flex h-7 w-7 items-center justify-center rounded-lg border border-base-300 text-base-content/70 transition hover:border-secondary/50 hover:text-secondary"
+          aria-label={`Edit ${book.title} details`}
+          className={`${iconClass} hover:border-secondary/50 hover:text-secondary`}
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
             <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
@@ -132,10 +121,25 @@ export default function BookCard({
         </button>
         <button
           type="button"
+          onClick={() => setMoving((m) => !m)}
+          disabled={busy || otherShelves.length === 0}
+          aria-label={`Move ${book.title} to another shelf`}
+          title="Move to another shelf"
+          className={`${iconClass} ${moving ? 'border-primary/60 text-primary' : ''} hover:border-info/50 hover:text-info`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
+            <path d="M8 3 4 7l4 4" />
+            <path d="M4 7h16" />
+            <path d="m16 21 4-4-4-4" />
+            <path d="M20 17H4" />
+          </svg>
+        </button>
+        <button
+          type="button"
           onClick={onDelete}
           disabled={busy}
-          aria-label="Delete book"
-          className="ml-auto flex h-7 w-7 items-center justify-center rounded-lg border border-base-300 text-base-content/70 transition hover:border-error/50 hover:text-error disabled:opacity-30"
+          aria-label={`Delete ${book.title}`}
+          className={`${iconClass} hover:border-error/50 hover:text-error`}
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
             <path d="M3 6h18" />
@@ -144,6 +148,25 @@ export default function BookCard({
           </svg>
         </button>
       </div>
+
+      {moving && (
+        <select
+          className="select select-bordered select-xs mt-0.5 w-full"
+          value=""
+          autoFocus
+          onChange={(e) => {
+            setMoving(false);
+            if (e.target.value) onMoveToShelf(e.target.value);
+          }}
+          onBlur={() => setMoving(false)}
+          aria-label={`Move ${book.title} to shelf`}
+        >
+          <option value="">Move to…</option>
+          {otherShelves.map((s) => (
+            <option key={s.id} value={s.id}>{s.name}</option>
+          ))}
+        </select>
+      )}
     </div>
   );
 }

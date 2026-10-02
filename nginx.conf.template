@@ -27,6 +27,7 @@ server {
         text/css                      css;
         text/javascript               js mjs;
         application/json              json map;
+        application/manifest+json     webmanifest;
         image/svg+xml                 svg;
         image/png                     png;
         image/webp                    webp;
