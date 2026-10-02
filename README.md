@@ -100,7 +100,7 @@ against the local API during development and the production API when deployed.
   prod `https://api.kinesis.world/x/bookshelf/`) is inlined into the client at
   build time. All API calls go through `AppProvider`
   (`src/context/AppContext.tsx`), which exposes `api(path)`, `request(path,
-  init)` (auto-attaches `Authorization: Bearer <jwt>`), `login`,
+init)` (auto-attaches `Authorization: Bearer <jwt>`), `login`,
   `reauthenticate`, `logout`, `upload` and `mediaUrl`.
 - **Response envelope** — every route returns `{ status, message, ... }`; the
   body `status` is authoritative even when the HTTP status is 200. `request`
@@ -114,13 +114,13 @@ against the local API during development and the production API when deployed.
 
 ### API routes used
 
-| Area   | Routes                                                                                                                                 |
-| ------ | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Auth   | `POST /user/register` · `POST /user/login` · `POST /user/login/jwt` (JWT)                                                              |
-| User   | `GET /user/me` (JWT) · `PATCH /user/update` (JWT)                                                                                      |
-| Shelves | `POST /shelf/create` · `PUT /shelf/update` · `DELETE /shelf/delete` · `GET /shelf/fetch` — all (JWT)                                   |
-| Books  | `POST /book/create` · `PUT /book/update` · `DELETE /book/delete` · `GET /book/fetch` · `POST /book/create/isbn` (OpenLibrary lookup) — all (JWT) |
-| Media  | `POST /upload` (public, `project_id=bookshelf`)                                                                                        |
+| Area    | Routes                                                                                                                                           |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Auth    | `POST /user/register` · `POST /user/login` · `POST /user/login/jwt` (JWT)                                                                        |
+| User    | `GET /user/me` (JWT) · `PATCH /user/update` (JWT)                                                                                                |
+| Shelves | `POST /shelf/create` · `PUT /shelf/update` · `DELETE /shelf/delete` · `GET /shelf/fetch` — all (JWT)                                             |
+| Books   | `POST /book/create` · `PUT /book/update` · `DELETE /book/delete` · `GET /book/fetch` · `POST /book/create/isbn` (OpenLibrary lookup) — all (JWT) |
+| Media   | `POST /upload` (public, `project_id=bookshelf`)                                                                                                  |
 
 > **Shelves** use a `position` (integer, 0 = top) that the API keeps consistent:
 > `POST /shelf/create` shifts existing shelves with `position >= new position`
@@ -143,13 +143,13 @@ against the local API during development and the production API when deployed.
 
 ### Auth flow
 
-| Step | Request | Notes |
-| ---- | ------- | ----- |
-| Register | `POST /user/register` `{ name, username, password }` | Username unique, strong password |
-| Login | `POST /user/login` `{ username, password }` | Returns `{ id, jwt }` |
-| Re-auth | `POST /user/login/jwt` `{ id }` + Bearer | Refreshes the JWT on every visit |
-| Profile | `GET /user/me?id=<id>` + Bearer | `password`/`reset_token`/OTP fields cleaned |
-| Update | `PATCH /user/update` `{ id, property, value }` + Bearer | `name` · `username` · `password` · `profile_picture` |
+| Step     | Request                                                 | Notes                                                |
+| -------- | ------------------------------------------------------- | ---------------------------------------------------- |
+| Register | `POST /user/register` `{ name, username, password }`    | Username unique, strong password                     |
+| Login    | `POST /user/login` `{ username, password }`             | Returns `{ id, jwt }`                                |
+| Re-auth  | `POST /user/login/jwt` `{ id }` + Bearer                | Refreshes the JWT on every visit                     |
+| Profile  | `GET /user/me?id=<id>` + Bearer                         | `password`/`reset_token`/OTP fields cleaned          |
+| Update   | `PATCH /user/update` `{ id, property, value }` + Bearer | `name` · `username` · `password` · `profile_picture` |
 
 ---
 
@@ -172,11 +172,11 @@ bunx astro dev stop
 
 ## Environment variables
 
-| Variable               | Default                                | Purpose                                                                                                   |
-| :--------------------- | :------------------------------------- | :-------------------------------------------------------------------------------------------------------- |
+| Variable               | Default                                  | Purpose                                                                                                                         |
+| :--------------------- | :--------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------ |
 | `PUBLIC_API_URL`       | `https://api.kinesis.world/x/bookshelf/` | Base URL of the Kinesis Bookshelf REST API (`/x/bookshelf/`). In dev, use the relative `/x/bookshelf/` (proxied) to avoid CORS. |
-| `PUBLIC_MEDIA_ORIGIN`  | `http://localhost:8080`                | Origin for media URLs (`<origin>/<path>`), the API host without `/x/bookshelf/`.                         |
-| `PUBLIC_UPLOAD_ORIGIN` | _(empty)_                              | Base for `POST /upload`. Empty in dev so uploads go through the proxy; `https://api.kinesis.world` in prod. |
+| `PUBLIC_MEDIA_ORIGIN`  | `http://localhost:8080`                  | Origin for media URLs (`<origin>/<path>`), the API host without `/x/bookshelf/`.                                                |
+| `PUBLIC_UPLOAD_ORIGIN` | _(empty)_                                | Base for `POST /upload`. Empty in dev so uploads go through the proxy; `https://api.kinesis.world` in prod.                     |
 
 ## Commands
 
